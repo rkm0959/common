@@ -20,7 +20,16 @@ pub(super) fn mul_accumulate(
     lhs: &[u64; 4],
     rhs: &[u64; 4],
 ) -> ([u64; 8], u64) {
-    let [mut d0, mut d1, mut d2, mut d3, mut d4, mut d5, mut d6, mut d7] = accumulator;
+    let [
+        mut d0,
+        mut d1,
+        mut d2,
+        mut d3,
+        mut d4,
+        mut d5,
+        mut d6,
+        mut d7,
+    ] = accumulator;
     let overflow;
     // SAFETY: only register arithmetic, all inputs and clobbers declared.
     // There are no memory accesses or data-dependent control flow.
