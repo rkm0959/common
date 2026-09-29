@@ -144,6 +144,26 @@ impl CodebookMode {
         }
     }
 
+    /// Whether this mode uses the compact residue-table representation.
+    const fn uses_compact_entries(&self) -> bool {
+        matches!(
+            self,
+            CodebookMode::Subgroup {
+                window_bits: 5..=7,
+                beta_power: None
+            }
+        )
+    }
+
+    /// Bytes per stored residue entry, shared by planning and construction.
+    pub(crate) const fn entry_bytes(&self) -> usize {
+        if self.uses_compact_entries() {
+            core::mem::size_of::<CompactCodeEntry>()
+        } else {
+            core::mem::size_of::<CodeEntry>()
+        }
+    }
+
     /// The radix width $c$ of this mode.
     pub const fn window_bits(&self) -> usize {
         match self {
@@ -851,13 +871,7 @@ impl Codebook {
 
         let (program, program_cost) = coefficient_program(&coefficients, &unit_weights);
 
-        let entries = if matches!(
-            mode,
-            CodebookMode::Subgroup {
-                window_bits: 5..=7,
-                beta_power: None
-            }
-        ) {
+        let entries = if mode.uses_compact_entries() {
             CodeEntries::Compact(entries.into_iter().map(CompactCodeEntry::new).collect())
         } else {
             CodeEntries::General(entries)
